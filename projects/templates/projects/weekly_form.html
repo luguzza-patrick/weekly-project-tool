@@ -8,6 +8,8 @@
     <div class="text-muted">Week {{ week }}, {{ year }}</div>
   </div>
 
+  {% include "projects/includes/week_picker.html" with picker_url="weekly" %}
+
   <p class="text-muted">Signed in as {{ request.user.get_username }}.</p>
 
   {% if formset.errors %}

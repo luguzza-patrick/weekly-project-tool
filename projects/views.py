@@ -15,6 +15,26 @@ def week_for_today():
     return year, week
 
 
+def resolve_week(request):
+    """Return the (year, week) to display, from query params or today's week."""
+    default_year, default_week = week_for_today()
+    try:
+        year = int(request.GET.get("year", default_year))
+        week = int(request.GET.get("week", default_week))
+    except (TypeError, ValueError):
+        return default_year, default_week
+    if not 1 <= week <= 53 or year < 1:
+        return default_year, default_week
+    return year, week
+
+
+def week_jump_url(name, year, week):
+    """Return the named URL rendering the given week."""
+    if (year, week) == week_for_today():
+        return f"/{name}/"
+    return f"/{name}/?year={year}&week={week}"
+
+
 def initial_for_projects(projects, report):
     """Build the empty-form initial data for each project's feedback row."""
     existing = {}
@@ -65,13 +85,13 @@ def weekly_form(request):
     """Render and process the weekly feedback form for the signed-in user."""
     user = request.user
     projects = user.projects.all() if user.is_authenticated else user.projects.none()
-    year, week = week_for_today()
+    year, week = resolve_week(request)
 
     if request.method == "POST":
         formset = ProjectFeedbackFormSet(request.POST)
         if formset.is_valid():
             save_feedback(request, year, week, formset)
-            return redirect("weekly")
+            return redirect(week_jump_url("weekly", year, week))
     else:
         report = WeeklyReport.objects.filter(
             user=user, year=year, week=week
@@ -91,8 +111,8 @@ def weekly_form(request):
 
 @login_required
 def dashboard(request):
-    """Show all current-week feedback across projects with status counts."""
-    year, week = week_for_today()
+    """Show feedback across projects for a chosen reporting week."""
+    year, week = resolve_week(request)
     reports = WeeklyReport.objects.filter(year=year, week=week)
     feedbacks = ProjectFeedback.objects.filter(report__in=reports).select_related(
         "report__user", "project"

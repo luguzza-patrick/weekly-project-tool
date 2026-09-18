@@ -85,7 +85,7 @@ def test_get_with_no_projects_shows_empty_form_not_error(client, user):
     assert response.status_code == 200
     content = response.content.decode()
     assert "not assigned to any projects" in content
-    assert "form-" not in content
+    assert "form-0-" not in content
 
 
 @pytest.mark.django_db

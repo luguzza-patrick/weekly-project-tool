@@ -9,6 +9,8 @@
     <div class="text-muted">Week {{ week }}, {{ year }}</div>
   </div>
 
+  {% include "projects/includes/week_picker.html" with picker_url="dashboard" %}
+
   <div class="card mb-4">
     <div class="card-body">
       <h2 class="h6 text-muted mb-2">Status summary</h2>
