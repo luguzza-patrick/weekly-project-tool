@@ -11,7 +11,11 @@ User = get_user_model()
 
 @pytest.fixture
 def user(db):
-    return User.objects.create_user(username="alice", password="secret")
+    return User.objects.create_user(
+        username="alice",
+        password="secret",
+        role=User.Role.PROJECT_MANAGER,
+    )
 
 
 def previous_week():

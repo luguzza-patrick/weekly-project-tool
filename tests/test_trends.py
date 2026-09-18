@@ -18,7 +18,11 @@ def previous_week(year, week):
 
 @pytest.fixture
 def user(db):
-    return User.objects.create_user(username="alice", password="secret")
+    return User.objects.create_user(
+        username="alice",
+        password="secret",
+        role=User.Role.PROJECT_MANAGER,
+    )
 
 
 @pytest.fixture

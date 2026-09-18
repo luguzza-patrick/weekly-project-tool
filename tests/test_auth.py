@@ -36,8 +36,11 @@ def test_authenticated_user_can_access_form(client, user):
 
 
 @pytest.mark.django_db
-def test_authenticated_user_can_access_dashboard(client, user):
-    client.force_login(user)
+def test_authenticated_user_can_access_dashboard(client):
+    pm = User.objects.create_user(
+        username="megan", password="secret", role=User.Role.PROJECT_MANAGER
+    )
+    client.force_login(pm)
     response = client.get("/weekly/dashboard/")
     assert response.status_code == 200
 

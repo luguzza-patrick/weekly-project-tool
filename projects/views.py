@@ -3,17 +3,34 @@
 from datetime import date
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render
 
 from .analytics import compute_trends, health_indicators
 from .forms import ProjectFeedbackFormSet
-from .models import Notification, ProjectFeedback, WeeklyReport
+from .models import Notification, ProjectFeedback, User, WeeklyReport
 
 
 def week_for_today():
     """Return the (year, week) of the reporting period (ISO week)."""
     year, week, _ = date.today().isocalendar()
     return year, week
+
+
+def project_manager_required(func):
+    """Allow only Project Managers (authenticated users with the PM role).
+
+    Anonymous users are still redirected to the login page; other signed-in
+    users (e.g. Team Members) are denied with HTTP 403.
+    """
+
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if request.user.role != User.Role.PROJECT_MANAGER:
+            raise PermissionDenied
+        return func(request, *args, **kwargs)
+
+    return wrapper
 
 
 def resolve_week(request):
@@ -61,12 +78,20 @@ def initial_for_projects(projects, report):
 
 
 def save_feedback(request, year, week, formset):
-    """Persist each valid form as one ProjectFeedback for this report + project."""
+    """Persist each valid form as one ProjectFeedback for this report + project.
+
+    Only feedback for projects the user is assigned to is saved; any form rows
+    that reference a project outside the user's own projects are skipped.
+    """
+    allowed_projects = set(request.user.projects.values_list("id", flat=True))
     report, _ = WeeklyReport.objects.get_or_create(
         user=request.user, year=year, week=week
     )
     for form in formset.forms:
         data = form.cleaned_data
+        feedback_project_id = data["project"].id
+        if feedback_project_id not in allowed_projects:
+            continue
         feedback = ProjectFeedback.objects.filter(
             report=report, project=data["project"]
         ).first()
@@ -136,7 +161,7 @@ def weekly_form(request):
     return render(request, "projects/weekly_form.html", context)
 
 
-@login_required
+@project_manager_required
 def trends(request):
     """Show progress/status trends and health indicators across recent weeks."""
     data = compute_trends()
@@ -162,7 +187,7 @@ def notifications(request):
     return render(request, "projects/notifications.html", context)
 
 
-@login_required
+@project_manager_required
 def dashboard(request):
     """Show feedback across projects for a chosen reporting week."""
     year, week = resolve_week(request)
