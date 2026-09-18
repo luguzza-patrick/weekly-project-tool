@@ -2,6 +2,7 @@
 
 from datetime import date
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from .forms import ProjectFeedbackFormSet
@@ -59,6 +60,7 @@ def save_feedback(request, year, week, formset):
         feedback.save()
 
 
+@login_required
 def weekly_form(request):
     """Render and process the weekly feedback form for the signed-in user."""
     user = request.user
@@ -87,6 +89,7 @@ def weekly_form(request):
     return render(request, "projects/weekly_form.html", context)
 
 
+@login_required
 def dashboard(request):
     """Show all current-week feedback across projects with status counts."""
     year, week = week_for_today()

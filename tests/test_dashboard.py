@@ -29,6 +29,7 @@ def test_dashboard_lists_feedback_rows(client, user):
         action_items="Upgrade library.",
     )
 
+    client.force_login(user)
     response = client.get("/weekly/dashboard/")
 
     assert response.status_code == 200
@@ -57,6 +58,7 @@ def test_dashboard_counts_match_rows(client, user):
     for project, status in zip([p1, p2, p3], statuses):
         ProjectFeedback.objects.create(report=report, project=project, status=status)
 
+    client.force_login(user)
     response = client.get("/weekly/dashboard/")
 
     content = response.content.decode()
@@ -67,6 +69,7 @@ def test_dashboard_counts_match_rows(client, user):
 
 @pytest.mark.django_db
 def test_dashboard_shows_empty_state_with_no_feedback(client, user):
+    client.force_login(user)
     response = client.get("/weekly/dashboard/")
 
     assert response.status_code == 200

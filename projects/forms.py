@@ -1,6 +1,7 @@
-"""Forms used by the weekly feedback form."""
+"""Forms used by the weekly feedback tool."""
 
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from django.forms import formset_factory
 
 from .models import Project, ProjectFeedback
@@ -55,3 +56,16 @@ class ProjectFeedbackForm(forms.Form):
 
 
 ProjectFeedbackFormSet = formset_factory(ProjectFeedbackForm, extra=0)
+
+
+class LoginForm(AuthenticationForm):
+    """Authentication form with Bootstrap-styled inputs."""
+
+    username = forms.CharField(
+        label="Username",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+    )
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+    )

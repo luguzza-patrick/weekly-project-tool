@@ -73,6 +73,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Team Members (see projects.models.User).
 AUTH_USER_MODEL = "projects.User"
 
+# Authentication flow URLs.
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "weekly"
+LOGOUT_REDIRECT_URL = "home"
+
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
