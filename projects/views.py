@@ -85,3 +85,33 @@ def weekly_form(request):
         "week": week,
     }
     return render(request, "projects/weekly_form.html", context)
+
+
+def dashboard(request):
+    """Show all current-week feedback across projects with status counts."""
+    year, week = week_for_today()
+    reports = WeeklyReport.objects.filter(year=year, week=week)
+    feedbacks = ProjectFeedback.objects.filter(report__in=reports).select_related(
+        "report__user", "project"
+    )
+
+    counts = {
+        ProjectFeedback.Status.ON_TRACK: feedbacks.filter(
+            status=ProjectFeedback.Status.ON_TRACK
+        ).count(),
+        ProjectFeedback.Status.AT_RISK: feedbacks.filter(
+            status=ProjectFeedback.Status.AT_RISK
+        ).count(),
+        ProjectFeedback.Status.BLOCKED: feedbacks.filter(
+            status=ProjectFeedback.Status.BLOCKED
+        ).count(),
+    }
+
+    context = {
+        "feedbacks": feedbacks,
+        "counts": counts,
+        "year": year,
+        "week": week,
+        "total": feedbacks.count(),
+    }
+    return render(request, "projects/dashboard.html", context)
