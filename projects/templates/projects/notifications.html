@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Notifications</h1>
+    <span class="text-muted">{{ unread }} unread</span>
+  </div>
+
+  {% if not notifications %}
+    <div class="alert alert-info">You have no notifications.</div>
+  {% else %}
+    <ul class="list-group">
+      {% for n in notifications %}
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if n.read %}text-muted{% endif %}">
+          <span>{{ n.message }}</span>
+          <small class="text-muted">{{ n.created_at|date:"M j, H:i" }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

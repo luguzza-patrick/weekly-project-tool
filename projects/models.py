@@ -76,6 +76,36 @@ class WeeklyReport(models.Model):
         return f"#{self.week} {self.year} - {self.user}"
 
 
+class Notification(models.Model):
+    """An alert created when a project is reported At Risk or Blocked."""
+
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        help_text="The user to be alerted.",
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="notifications",
+        help_text="The project the notification is about.",
+    )
+    message = models.CharField(
+        max_length=300, help_text="Short, human-readable alert text."
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(
+        default=False, help_text="Whether the recipient has acknowledged this."
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.recipient}: {self.message}"
+
+
 class ProjectFeedback(models.Model):
     """Per-project feedback recorded against a weekly report."""
 

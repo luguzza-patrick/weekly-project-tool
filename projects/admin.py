@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Project, ProjectFeedback, User, WeeklyReport
+from .models import Notification, Project, ProjectFeedback, User, WeeklyReport
 
 
 @admin.register(User)
@@ -46,3 +46,12 @@ class ProjectFeedbackAdmin(admin.ModelAdmin):
     list_display = ("project", "status", "completion", "report")
     list_select_related = ("project", "report")
     list_filter = ("status",)
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    """Admin for project status notifications."""
+
+    list_display = ("recipient", "project", "message", "read", "created_at")
+    list_select_related = ("recipient", "project")
+    list_filter = ("read",)

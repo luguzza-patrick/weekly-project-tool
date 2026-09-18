@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
 from .forms import ProjectFeedbackFormSet
-from .models import ProjectFeedback, WeeklyReport
+from .models import Notification, ProjectFeedback, WeeklyReport
 
 
 def week_for_today():
@@ -71,6 +71,7 @@ def save_feedback(request, year, week, formset):
         ).first()
         if feedback is None:
             feedback = ProjectFeedback(report=report, project=data["project"])
+        previous_status = feedback.status if feedback.pk else None
         feedback.status = data["status"]
         feedback.completion = data["completion"]
         feedback.completed_work = data["completed_work"]
@@ -78,6 +79,31 @@ def save_feedback(request, year, week, formset):
         feedback.risks = data["risks"]
         feedback.action_items = data["action_items"]
         feedback.save()
+        if _should_notify(previous_status, feedback):
+            create_notifications(feedback)
+
+
+def _should_notify(previous_status, feedback):
+    """True when a project just transitioned to At Risk or Blocked."""
+    alerted = (
+        feedback.status == ProjectFeedback.Status.AT_RISK
+        or feedback.status == ProjectFeedback.Status.BLOCKED
+    )
+    return alerted and feedback.status != previous_status
+
+
+def create_notifications(feedback):
+    """Alert project members (other than the reporter) about a risky project."""
+    members = feedback.project.members.exclude(pk=feedback.report.user_id)
+    message = (
+        f"{feedback.project.name} was reported "
+        f"{feedback.get_status_display()} (week {feedback.report.week}, "
+        f"{feedback.report.year})."
+    )
+    Notification.objects.bulk_create(
+        Notification(recipient=member, project=feedback.project, message=message)
+        for member in members
+    )
 
 
 @login_required
@@ -107,6 +133,17 @@ def weekly_form(request):
         "week": week,
     }
     return render(request, "projects/weekly_form.html", context)
+
+
+@login_required
+def notifications(request):
+    """Show the signed-in user's notifications about project status."""
+    notes = request.user.notifications.all()
+    context = {
+        "notifications": notes,
+        "unread": notes.filter(read=False).count(),
+    }
+    return render(request, "projects/notifications.html", context)
 
 
 @login_required
