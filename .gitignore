@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+
+# Database
+db.sqlite3
+
+# Test artifacts
+.pytest_cache/
