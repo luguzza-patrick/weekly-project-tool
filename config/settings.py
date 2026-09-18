@@ -74,6 +74,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Team Members (see projects.models.User).
 AUTH_USER_MODEL = "projects.User"
 
+# Dev email backend: writes messages to memory/console rather than sending.
+# Swap to a real SMTP/console backend before production deployment.
+EMAIL_BACKENDS = {
+    "default": {"BACKEND": "django.core.mail.backends.locmem.EmailBackend"}
+}
+
 # Authentication flow URLs.
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "weekly"

@@ -1,10 +1,10 @@
 """Forms used by the weekly feedback tool."""
 
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.forms import formset_factory
 
-from .models import Project, ProjectFeedback
+from .models import Project, ProjectFeedback, User
 
 FEEDBACK_FIELDS = (
     "status",
@@ -69,3 +69,16 @@ class LoginForm(AuthenticationForm):
         label="Password",
         widget=forms.PasswordInput(attrs={"class": "form-control"}),
     )
+
+
+class SignUpForm(UserCreationForm):
+    """Self-service account creation, bootstrapped, defaulting to Team Member."""
+
+    class Meta:
+        model = User
+        fields = ("username", "email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", "form-control")
