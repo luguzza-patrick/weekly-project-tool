@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load filters %}
+
+{% block title %}Trends{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Trends</h1>
+    <span class="text-muted">Last {{ labels|length }} weeks</span>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h6 text-muted mb-3">Completion and status by week</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Metric</th>
+              {% for label in labels %}<th class="text-center">{{ label }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Avg completion</th>
+              {% for avg in averages %}
+                <td class="text-center">{{ avg|floatformat:0 }}%</td>
+              {% endfor %}
+            </tr>
+            <tr>
+              <th>On Track</th>
+              {% for c in status_counts %}<td class="text-center">{{ c.on_track }}</td>{% endfor %}
+            </tr>
+            <tr>
+              <th>At Risk</th>
+              {% for c in status_counts %}<td class="text-center">{{ c.at_risk }}</td>{% endfor %}
+            </tr>
+            <tr>
+              <th>Blocked</th>
+              {% for c in status_counts %}<td class="text-center">{{ c.blocked }}</td>{% endfor %}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="h6 text-muted mb-3">Progress by project</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Project</th>
+              {% for label in labels %}<th class="text-center">{{ label }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in projects %}
+              <tr>
+                <th>{{ project.name }}</th>
+                {% for completion in project_completion|lookup:project.id %}
+                  <td class="text-center">{% if completion %}{{ completion }}%{% else %}&mdash;{% endif %}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <h2 class="h6 text-muted mb-3">Project health</h2>
+      <table class="table">
+        <thead class="table-light">
+          <tr><th>Project</th><th>Indicator</th><th>Latest progress</th></tr>
+        </thead>
+        <tbody>
+          {% for item in health %}
+            <tr>
+              <td>{{ item.project }}</td>
+              <td>
+                <span class="badge {% if item.status == 'blocked' %}text-bg-danger{% elif item.status == 'at_risk' %}text-bg-warning{% else %}text-bg-secondary{% endif %}">
+                  {{ item.indicator }}
+                </span>
+              </td>
+              <td>{% if item.completion is not None %}{{ item.completion }}%{% else %}No data{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

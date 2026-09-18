@@ -5,6 +5,7 @@ from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 
+from .analytics import compute_trends, health_indicators
 from .forms import ProjectFeedbackFormSet
 from .models import Notification, ProjectFeedback, WeeklyReport
 
@@ -133,6 +134,21 @@ def weekly_form(request):
         "week": week,
     }
     return render(request, "projects/weekly_form.html", context)
+
+
+@login_required
+def trends(request):
+    """Show progress/status trends and health indicators across recent weeks."""
+    data = compute_trends()
+    context = {
+        "labels": data["labels"],
+        "averages": data["averages"],
+        "status_counts": data["status_counts"],
+        "projects": data["projects"],
+        "project_completion": data["project_completion"],
+        "health": health_indicators(),
+    }
+    return render(request, "projects/trends.html", context)
 
 
 @login_required
