@@ -1,45 +1,59 @@
 {% extends "base.html" %}
+{% load status_badges %}
 
 {% block title %}Dashboard - Week {{ week }}, {{ year }}{% endblock %}
 
 {% block content %}
-  <h1>Dashboard - Week {{ week }}, {{ year }}</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Dashboard</h1>
+    <div class="text-muted">Week {{ week }}, {{ year }}</div>
+  </div>
 
-  <h2>Status summary</h2>
-  <p>
-    On Track: {{ counts.on_track }} ·
-    At Risk: {{ counts.at_risk }} ·
-    Blocked: {{ counts.blocked }}
-  </p>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h6 text-muted mb-2">Status summary</h2>
+      <p class="mb-0">
+        On Track: {{ counts.on_track }} ·
+        At Risk: {{ counts.at_risk }} ·
+        Blocked: {{ counts.blocked }}
+      </p>
+    </div>
+  </div>
 
   {% if not feedbacks %}
-    <p>No feedback has been submitted for this week yet.</p>
+    <div class="alert alert-info">No feedback has been submitted for this week yet.</div>
   {% else %}
-    <table>
-      <thead>
-        <tr>
-          <th>Project</th>
-          <th>Status</th>
-          <th>Progress</th>
-          <th>Completed work</th>
-          <th>Risks / blockers</th>
-          <th>Action items</th>
-          <th>Reported by</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for feedback in feedbacks %}
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead class="table-light">
           <tr>
-            <td>{{ feedback.project.name }}</td>
-            <td>{{ feedback.get_status_display }}</td>
-            <td>{{ feedback.completion }}%</td>
-            <td>{{ feedback.completed_work }}</td>
-            <td>{{ feedback.risks }}</td>
-            <td>{{ feedback.action_items }}</td>
-            <td>{{ feedback.report.user.get_username }}</td>
+            <th>Project</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Completed work</th>
+            <th>Risks / blockers</th>
+            <th>Action items</th>
+            <th>Reported by</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for feedback in feedbacks %}
+            <tr>
+              <td>{{ feedback.project.name }}</td>
+              <td>
+                <span class="badge {{ feedback.status|status_badge }}">
+                  {{ feedback.get_status_display }}
+                </span>
+              </td>
+              <td>{{ feedback.completion }}%</td>
+              <td>{{ feedback.completed_work }}</td>
+              <td>{{ feedback.risks }}</td>
+              <td>{{ feedback.action_items }}</td>
+              <td>{{ feedback.report.user.get_username }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% endif %}
 {% endblock %}

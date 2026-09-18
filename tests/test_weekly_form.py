@@ -73,7 +73,7 @@ def test_get_renders_one_input_row_per_project(client, user):
 
     assert b"Alpha" in response.content
     assert b"Beta" in response.content
-    assert content.count("<fieldset>") == 2
+    assert content.count("<fieldset") == 2
 
 
 @pytest.mark.django_db

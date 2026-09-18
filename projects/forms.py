@@ -21,17 +21,36 @@ class ProjectFeedbackForm(forms.Form):
     project = forms.ModelChoiceField(
         queryset=Project.objects.all(), widget=forms.HiddenInput()
     )
-    status = forms.ChoiceField(choices=ProjectFeedback.Status.choices)
+    status = forms.ChoiceField(
+        choices=ProjectFeedback.Status.choices,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
     completion = forms.IntegerField(
-        min_value=0, max_value=100, initial=0, label="Progress (%)"
+        min_value=0,
+        max_value=100,
+        initial=0,
+        label="Progress (%)",
+        widget=forms.NumberInput(attrs={"class": "form-control"}),
     )
     completed_work = forms.CharField(
-        required=False, widget=forms.Textarea, label="Completed work"
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        label="Completed work",
     )
-    notes = forms.CharField(required=False, widget=forms.Textarea, label="Notes")
-    risks = forms.CharField(required=False, widget=forms.Textarea, label="Risks / blockers")
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        label="Notes",
+    )
+    risks = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        label="Risks / blockers",
+    )
     action_items = forms.CharField(
-        required=False, widget=forms.Textarea, label="Action items / next steps"
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        label="Action items / next steps",
     )
 
 
