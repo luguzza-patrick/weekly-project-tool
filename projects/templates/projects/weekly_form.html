@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Weekly feedback - Week {{ week }}, {{ year }}{% endblock %}
+
+{% block content %}
+  <h1>Weekly feedback - Week {{ week }}, {{ year }}</h1>
+
+  <p>Signed in as {{ request.user.get_username }}.</p>
+
+  {% if formset.errors %}
+    <div class="errors">
+      <strong>Please correct the errors below.</strong>
+      {{ formset.non_form_errors }}
+    </div>
+  {% endif %}
+
+  {% if not rows %}
+    <p>You are not assigned to any projects yet.</p>
+  {% else %}
+    <form method="post" action="{% url 'weekly' %}">
+      {% csrf_token %}
+      {{ formset.management_form }}
+      {% for project, form in rows %}
+        <fieldset>
+          <legend>{{ project.name }}</legend>
+          {{ form.project }}
+          {% if form.errors %}<div class="errors">{{ form.errors }}</div>{% endif %}
+          <div>
+            <label for="{{ form.status.id_for_label }}">Status</label>
+            {{ form.status }}
+          </div>
+          <div>
+            <label for="{{ form.completion.id_for_label }}">Progress (%)</label>
+            {{ form.completion }}
+          </div>
+          <div>
+            <label for="{{ form.completed_work.id_for_label }}">Completed work</label>
+            {{ form.completed_work }}
+          </div>
+          <div>
+            <label for="{{ form.notes.id_for_label }}">Notes</label>
+            {{ form.notes }}
+          </div>
+          <div>
+            <label for="{{ form.risks.id_for_label }}">Risks / blockers</label>
+            {{ form.risks }}
+          </div>
+          <div>
+            <label for="{{ form.action_items.id_for_label }}">Action items</label>
+            {{ form.action_items }}
+          </div>
+        </fieldset>
+      {% endfor %}
+      <button type="submit">Save feedback</button>
+    </form>
+  {% endif %}
+{% endblock %}

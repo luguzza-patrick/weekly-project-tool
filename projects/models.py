@@ -20,6 +20,13 @@ class User(AbstractUser):
         help_text="Whether the user is a Project Manager or a Team Member.",
     )
 
+    projects = models.ManyToManyField(
+        "Project",
+        blank=True,
+        related_name="members",
+        help_text="Projects the user is involved in.",
+    )
+
 
 class Project(models.Model):
     """A project that team members and managers report weekly feedback on."""
