@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "projects",
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+
+# Custom user model with a role distinguishing Project Managers from
+# Team Members (see projects.models.User).
+AUTH_USER_MODEL = "projects.User"
 
 
 # Database
