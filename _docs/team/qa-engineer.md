@@ -29,3 +29,5 @@ Definition of done:
 
 Ignore what the implementation says it does. Only the acceptance
 criteria and the running code count.
+
+After ask me for go ahead to update the issue on github using gh-cli
